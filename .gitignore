@@ -16,3 +16,7 @@ venv.bak/
 
 # db
 app.db
+
+# VSCode stuff
+.vscode/
+.vscode
