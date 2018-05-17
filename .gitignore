@@ -17,6 +17,10 @@ venv.bak/
 # db
 app.db
 
+# from app
+app/__pycache__/
+migrations/__pycache__/
+
 # VSCode stuff
 .vscode/
 .vscode
