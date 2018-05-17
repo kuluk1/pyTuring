@@ -1,9 +1,12 @@
 # Import the database object (db) from the main application module
 # We will define this inside /app/__init__.py in the next sections.
-from app import db
+from app import db, login
+
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 # Define a base model for other database tables to inherit
-class Base(db.Model):
+class Base(UserMixin, db.Model):
 
     __abstract__  = True
 
@@ -18,23 +21,33 @@ class User(Base):
     __tablename__ = 'auth_user'
 
     # User Name
-    name    = db.Column(db.String(128),  nullable=False)
+    username    = db.Column(db.String(128),  nullable=False)
 
     # Identification Data: email & password
     email    = db.Column(db.String(128),  nullable=False,
                                             unique=True)
-    password = db.Column(db.String(192),  nullable=False)
+    password = db.Column(db.String(128),  nullable=False)
 
     # Authorisation Data: role & status
-    role     = db.Column(db.SmallInteger, nullable=False)
-    status   = db.Column(db.SmallInteger, nullable=False)
+    role     = db.Column(db.SmallInteger, nullable=True)
+    status   = db.Column(db.SmallInteger, nullable=True)
 
     # New instance instantiation procedure
-    def __init__(self, name, email, password):
+    def __init__(self, username, email):
 
-        self.name     = name
+        self.username     = username
         self.email    = email
-        self.password = password
 
     def __repr__(self):
-        return '<User %r>' % (self.name)
+        return '<User %r>' % (self.username)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
